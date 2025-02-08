@@ -14,7 +14,7 @@ export const DimensionInput: React.FC<DimensionInputProps> = ({
   label,
   value,
   onChange,
-  unit = "mm",
+  unit = "cm",
 }) => {
   return (
     <div className="flex flex-col space-y-1.5">

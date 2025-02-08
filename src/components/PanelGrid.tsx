@@ -16,7 +16,13 @@ export const PanelGrid: React.FC<PanelGridProps> = ({
   panelHeight,
 }) => {
   const containerWidth = Math.min(800, window.innerWidth - 40);
-  const scale = containerWidth / (columns * panelWidth);
+  const containerHeight = 400; // Fixed height for visualization
+  
+  // Calculate scale based on both width and height constraints
+  const scaleWidth = containerWidth / (columns * panelWidth);
+  const scaleHeight = containerHeight / (rows * panelHeight);
+  const scale = Math.min(scaleWidth, scaleHeight);
+
   const scaledPanelWidth = panelWidth * scale;
   const scaledPanelHeight = panelHeight * scale;
 

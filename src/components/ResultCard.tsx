@@ -8,6 +8,7 @@ interface ResultCardProps {
   value: string | number;
   description?: string;
   variant?: "default" | "success" | "warning";
+  onClick?: () => void;
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({
@@ -15,6 +16,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({
   value,
   description,
   variant = "default",
+  onClick,
 }) => {
   const variants = {
     default: "bg-white",
@@ -27,8 +29,10 @@ export const ResultCard: React.FC<ResultCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      onClick={onClick}
+      className={onClick ? "cursor-pointer" : ""}
     >
-      <Card className={`${variants[variant]} backdrop-blur-sm`}>
+      <Card className={`${variants[variant]} backdrop-blur-sm transition-colors duration-200 ${onClick ? "hover:bg-gray-50" : ""}`}>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-secondary">
             {title}

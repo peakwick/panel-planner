@@ -6,32 +6,59 @@ import { ResultCard } from "@/components/ResultCard";
 import { motion } from "framer-motion";
 
 const Index = () => {
-  const [targetWidth, setTargetWidth] = useState<number>(1000);
-  const [targetHeight, setTargetHeight] = useState<number>(1000);
-  const [panelWidth, setPanelWidth] = useState<number>(500);
-  const [panelHeight, setPanelHeight] = useState<number>(500);
+  const [targetWidth, setTargetWidth] = useState<number>(100);
+  const [targetHeight, setTargetHeight] = useState<number>(100);
+  const [panelWidth, setPanelWidth] = useState<number>(50);
+  const [panelHeight, setPanelHeight] = useState<number>(50);
+  const [selectedOption, setSelectedOption] = useState<"minimum" | "maximum">("minimum");
 
   const [results, setResults] = useState({
-    panels: { rows: 0, columns: 0, total: 0 },
-    dimensions: { width: 0, height: 0 },
-    excess: { width: 0, height: 0 },
+    minimum: {
+      panels: { rows: 0, columns: 0, total: 0 },
+      dimensions: { width: 0, height: 0 },
+      coverage: { width: 0, height: 0 },
+    },
+    maximum: {
+      panels: { rows: 0, columns: 0, total: 0 },
+      dimensions: { width: 0, height: 0 },
+      excess: { width: 0, height: 0 },
+    },
   });
 
   useEffect(() => {
-    const columns = Math.ceil(targetWidth / panelWidth);
-    const rows = Math.ceil(targetHeight / panelHeight);
-    const totalPanels = columns * rows;
-    const finalWidth = columns * panelWidth;
-    const finalHeight = rows * panelHeight;
-    const excessWidth = finalWidth - targetWidth;
-    const excessHeight = finalHeight - targetHeight;
+    // Minimum coverage (might leave gaps)
+    const minColumns = Math.floor(targetWidth / panelWidth);
+    const minRows = Math.floor(targetHeight / panelHeight);
+    const minTotalPanels = minColumns * minRows;
+    const minFinalWidth = minColumns * panelWidth;
+    const minFinalHeight = minRows * panelHeight;
+    const minCoverageWidth = targetWidth - minFinalWidth;
+    const minCoverageHeight = targetHeight - minFinalHeight;
+
+    // Maximum coverage (might exceed)
+    const maxColumns = Math.ceil(targetWidth / panelWidth);
+    const maxRows = Math.ceil(targetHeight / panelHeight);
+    const maxTotalPanels = maxColumns * maxRows;
+    const maxFinalWidth = maxColumns * panelWidth;
+    const maxFinalHeight = maxRows * panelHeight;
+    const excessWidth = maxFinalWidth - targetWidth;
+    const excessHeight = maxFinalHeight - targetHeight;
 
     setResults({
-      panels: { rows, columns, total: totalPanels },
-      dimensions: { width: finalWidth, height: finalHeight },
-      excess: { width: excessWidth, height: excessHeight },
+      minimum: {
+        panels: { rows: minRows, columns: minColumns, total: minTotalPanels },
+        dimensions: { width: minFinalWidth, height: minFinalHeight },
+        coverage: { width: minCoverageWidth, height: minCoverageHeight },
+      },
+      maximum: {
+        panels: { rows: maxRows, columns: maxColumns, total: maxTotalPanels },
+        dimensions: { width: maxFinalWidth, height: maxFinalHeight },
+        excess: { width: excessWidth, height: excessHeight },
+      },
     });
   }, [targetWidth, targetHeight, panelWidth, panelHeight]);
+
+  const currentResult = results[selectedOption];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -49,12 +76,12 @@ const Index = () => {
           </p>
         </motion.div>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="space-y-6"
+            className="grid md:grid-cols-2 gap-6"
           >
             <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
               <h2 className="text-lg font-semibold text-primary mb-4">
@@ -90,38 +117,38 @@ const Index = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
               <ResultCard
-                title="Total Panels Needed"
-                value={results.panels.total}
-                description={`${results.panels.columns} × ${results.panels.rows} grid`}
-                variant="default"
+                title="Minimum Coverage"
+                value={`${results.minimum.panels.total} panels`}
+                description={`${results.minimum.coverage.width.toFixed(1)} × ${results.minimum.coverage.height.toFixed(1)} cm uncovered`}
+                variant={selectedOption === "minimum" ? "success" : "default"}
+                onClick={() => setSelectedOption("minimum")}
               />
               <ResultCard
-                title="Final Dimensions"
-                value={`${results.dimensions.width} × ${results.dimensions.height}`}
-                description="mm"
-                variant="success"
+                title="Maximum Coverage"
+                value={`${results.maximum.panels.total} panels`}
+                description={`${results.maximum.excess.width.toFixed(1)} × ${results.maximum.excess.height.toFixed(1)} cm excess`}
+                variant={selectedOption === "maximum" ? "success" : "default"}
+                onClick={() => setSelectedOption("maximum")}
               />
             </div>
 
-            {(results.excess.width > 0 || results.excess.height > 0) && (
-              <ResultCard
-                title="Excess Space"
-                value={`${results.excess.width} × ${results.excess.height}`}
-                description="mm over target size"
-                variant="warning"
-              />
-            )}
+            <ResultCard
+              title="Final Dimensions"
+              value={`${currentResult.dimensions.width} × ${currentResult.dimensions.height}`}
+              description="cm"
+              variant="warning"
+            />
 
             <PanelGrid
-              rows={results.panels.rows}
-              columns={results.panels.columns}
+              rows={currentResult.panels.rows}
+              columns={currentResult.panels.columns}
               panelWidth={panelWidth}
               panelHeight={panelHeight}
             />
