@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { DimensionInput } from "@/components/DimensionInput";
 import { PanelGrid } from "@/components/PanelGrid";
@@ -26,7 +25,6 @@ const Index = () => {
   });
 
   useEffect(() => {
-    // Minimum coverage (might leave gaps)
     const minColumns = Math.floor(targetWidth / panelWidth);
     const minRows = Math.floor(targetHeight / panelHeight);
     const minTotalPanels = minColumns * minRows;
@@ -35,7 +33,6 @@ const Index = () => {
     const minCoverageWidth = targetWidth - minFinalWidth;
     const minCoverageHeight = targetHeight - minFinalHeight;
 
-    // Maximum coverage (might exceed)
     const maxColumns = Math.ceil(targetWidth / panelWidth);
     const maxRows = Math.ceil(targetHeight / panelHeight);
     const maxTotalPanels = maxColumns * maxRows;
@@ -141,8 +138,12 @@ const Index = () => {
 
             <ResultCard
               title="Final Dimensions"
-              value={`${currentResult.dimensions.width} × ${currentResult.dimensions.height}`}
-              description="cm"
+              value={`${currentResult.dimensions.width} × ${currentResult.dimensions.height} cm`}
+              description={
+                selectedOption === "minimum"
+                  ? `Target: ${targetWidth} × ${targetHeight} cm (${Math.abs(currentResult.dimensions.width - targetWidth)} × ${Math.abs(currentResult.dimensions.height - targetHeight)} cm less)`
+                  : `Target: ${targetWidth} × ${targetHeight} cm (+${currentResult.dimensions.width - targetWidth} × +${currentResult.dimensions.height - targetHeight} cm)`
+              }
               variant="warning"
             />
 
@@ -151,6 +152,8 @@ const Index = () => {
               columns={currentResult.panels.columns}
               panelWidth={panelWidth}
               panelHeight={panelHeight}
+              targetWidth={targetWidth}
+              targetHeight={targetHeight}
             />
           </motion.div>
         </div>
