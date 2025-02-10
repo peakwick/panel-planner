@@ -34,9 +34,10 @@ export const PanelGrid: React.FC<PanelGridProps> = ({
   const widthDiff = finalWidth - targetWidth;
   const heightDiff = finalHeight - targetHeight;
 
-  // Assuming average human height is 170cm
-  const humanHeight = 170;
-  const humanScale = (scaledPanelHeight * rows) / humanHeight * 0.8; // Scale human to 80% of panel height
+  // Fixed human height at 165cm, scaled to match panel scale
+  const humanHeightCm = 165;
+  const pixelsPerCm = scaledPanelHeight / panelHeight;
+  const humanHeightPixels = humanHeightCm * pixelsPerCm;
 
   return (
     <div className="w-full overflow-x-auto p-4 bg-white rounded-lg shadow-sm">
@@ -80,12 +81,13 @@ export const PanelGrid: React.FC<PanelGridProps> = ({
             })}
           </div>
 
-          {/* Human figure */}
-          <div className="flex-shrink-0">
+          {/* Human figure with reference height */}
+          <div className="flex-shrink-0 flex flex-col items-center">
+            <div className="text-xs text-secondary mb-1">Reference: 165cm</div>
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               style={{
-                height: humanScale * 170,
+                height: humanHeightPixels,
                 width: 'auto',
               }}
               viewBox="0 0 840.5 735.95293" 
@@ -138,3 +140,4 @@ export const PanelGrid: React.FC<PanelGridProps> = ({
     </div>
   );
 };
+
